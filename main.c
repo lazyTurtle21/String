@@ -2,7 +2,7 @@
 #include <ctype.h>
 #include <stddef.h>
 #include <stdlib.h>
-
+// Zhenia HI!!!!!
 typedef struct {
     size_t capacity_m; // Розмір блока
     size_t size_m;	   // Фактичний розмір стрічки
