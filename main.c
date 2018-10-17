@@ -136,6 +136,5 @@ size_t my_str_read(my_str_t* str);
 int main() {
 	my_str_t x;
 	my_str_create(&x, 10);
-
 	return 0;
 }
