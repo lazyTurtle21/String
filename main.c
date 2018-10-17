@@ -42,7 +42,11 @@ size_t my_str_size(const my_str_t* str);
 size_t my_str_capacity(const my_str_t* str);
 
 //! Повертає булеве значення, чи стрічка порожня:
-int my_str_empty(const my_str_t* str);
+int my_str_empty(const my_str_t* str) {
+	if (!str->size_m)
+		return 1;
+	return 0;
+}
 
 //! Повертає символ у вказаній позиції, або -1, якщо вихід за межі стрічки
 //! Тому, власне, int а не char
@@ -136,6 +140,7 @@ size_t my_str_read(my_str_t* str);
 int main() {
 	my_str_t x;
 	my_str_create(&x, 10);
-
+    printf("%d",my_str_empty(&x));
+    getchar();
 	return 0;
 }
