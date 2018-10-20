@@ -182,7 +182,7 @@ int my_str_insert_c(my_str_t* str, char c, size_t pos) {
     if (str->size_m >= str->capacity_m)
         return -1;
 
-    int size = str->size_m;
+    size_t size = str->size_m;
     while (size-- != pos)
         *(str->data + size + 1) = *(str->data + size);
     *(str->data + pos) = c;
@@ -199,9 +199,9 @@ int my_str_insert(my_str_t* str, const my_str_t* from, size_t pos){
     if (str->size_m + from->size_m > str->capacity_m)
         return -1;
 
-    int size = str->size_m;
-    int insert_size = from->size_m;
-    
+    size_t size = str->size_m;
+    size_t insert_size = from->size_m;
+
     while (size-- != pos)
         *(str->data + size + insert_size - 1) = *(str->data + size);
     while(--insert_size)
@@ -214,14 +214,13 @@ int my_str_insert(my_str_t* str, const my_str_t* from, size_t pos){
 //! Вставити C-стрічку в заданій позиції, змістивши решту символів праворуч.
 //! Якщо це неможливо, повертає -1, інакше 0.
 int my_str_insert_cstr(my_str_t* str, const char* from, size_t pos) {
-    if (!str)
+    if (!str || !from)
         return -3;
-    if (!from)
-        return -4;
     if (str->size_m + strlen(from) > str->capacity_m)
         return -1;
-    int size = str->size_m;
-    int insert_size = strlen(from);
+
+    size_t size = str->size_m;
+    size_t insert_size = strlen(from);
     while (size-- != pos)
         *(str->data + size + insert_size) = *(str->data + size);
     while (*(from))
@@ -269,6 +268,22 @@ size_t my_str_find(const my_str_t* str, const my_str_t* tofind, size_t from){
     if (!str || !tofind)
         return -3;
 
+    if (str->size_m < from)
+        return -1;
+
+    size_t size = str->size_m;
+    size_t subsize = tofind->size_m;
+    size_t j;
+    for (from; from < size - subsize; from ++){
+        for (j = 0; j < subsize; j++){
+            if (*(str->data + from + j) != *(tofind-> data + j))
+                break;
+        }
+        if (j == subsize)
+            return from;
+    }
+    return -1;
+
 }
 
 //! Знайти перший символ в стрічці, повернути його номер
@@ -277,12 +292,29 @@ size_t my_str_find(const my_str_t* str, const my_str_t* tofind, size_t from){
 size_t my_str_find_c(const my_str_t* str, char tofind, size_t from){
     if (!str)
         return -3;
+    if (from > str->size_m)
+        return -1;
+
+    for (from; from < str->size_m; from++){
+        if (*(str->data + from) == tofind)
+            return from;
+    }
+    return -1;
 }
 
 //! Знайти символ в стрічці, для якого передана
 //! функція повернула true, повернути його номер
 //! або -1u, якщо не знайдено:
-size_t my_str_find_if(const my_str_t* str, int (*predicat)(char));
+size_t my_str_find_if(const my_str_t* str, int (*predicate)(char)){
+    if (!str)
+        return -3;
+
+    for (size_t i = 0; i < str->size_m; i++){
+        if (predicate(*(str->data + i)) == 1)
+            return i;
+    }
+    return -1;
+}
 
 //! Прочитати стрічку із файлу. Повернути, 0, якщо успішно, -1,
 //! якщо сталися помилки. Кінець вводу -- не помилка, однак,
@@ -294,21 +326,21 @@ size_t my_str_read_file(my_str_t* str, FILE* file);
 size_t my_str_read(my_str_t* str);
 
 
+
 int main() {
     my_str_t x;
     my_str_create(&x, 10);
     for (int i = 0; i<5; i++)
-        my_str_pushback(&x, (char)i + '4');
+        my_str_pushback(&x, (char)i + 'a');
     my_str_t y;
     my_str_create(&y, 5);
-    for (int i = 0; i<5; i++)
-        my_str_pushback(&y, (char)i + '0');
+    for (int i = 0; i<3; i++)
+        my_str_pushback(&y, (char)i + 'b');
     print_str(&x);
     print_str(&y);
-    my_str_insert(&x, &y, 4);
-    print_str(&x);
+
 //    print_str(&x);
 //    print_str(&y);
-
+    printf("%i", my_str_find(&x, &y, 10));
     return 0;
 }
