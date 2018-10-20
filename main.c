@@ -29,7 +29,7 @@ static int print_str(const my_str_t* str){
 //? рахує кількість символів без останнього ('\0')
 const size_t strlen(const char* str) {
     if (!str)
-        return -3;
+        return (size_t)-3u;
 
     size_t length = 0;
     while (*(str + ++length)) {}
@@ -38,7 +38,6 @@ const size_t strlen(const char* str) {
 
 //! Створити стрічку із буфером вказаного розміру. Пам'ять виділяється динамічно.
 //! Варто виділяти buf_size+1 для спрощення роботи my_str_get_cstr().
-//? -3 -- null pointer exception
 int my_str_create(my_str_t* str, size_t buf_size) {
     if (!str)
         return -3;
@@ -100,7 +99,7 @@ void my_str_free(my_str_t* str){
 //? -3 -- null pointer exception
 size_t my_str_size(const my_str_t* str) {
     if (!str)
-        return -3;
+        return (size_t)-3u;
     return str->size_m;
 }
 
@@ -108,7 +107,7 @@ size_t my_str_size(const my_str_t* str) {
 //? -3 -- null pointer exception
 size_t my_str_capacity(const my_str_t* str) {
     if (!str)
-        return -3;
+        return (size_t)-3u;
     return str->capacity_m;
 }
 
@@ -180,11 +179,9 @@ int my_str_popback(my_str_t* str){
 int my_str_copy(const my_str_t* from,  my_str_t* to, int reserve){
     if (!from || !to)
         return -3;
-
-    if (to->capacity_m < from->size_m)
+     if (to->capacity_m < from->size_m)
         return -1;
-
-    if (reserve == 1)
+     if (reserve == 1)
         to->capacity_m = from->capacity_m;
     else
         to->capacity_m = from->size_m + 1;
@@ -259,6 +256,10 @@ int my_str_insert_cstr(my_str_t* str, const char* from, size_t pos) {
 
 //! Додати стрічку в кінець.
 //! Якщо це неможливо, повертає -1, інакше 0.
+int my_str_append(my_str_t* str, const my_str_t* from);
+
+//! Додати С-стрічку в кінець.
+//! Якщо це неможливо, повертає -1, інакше 0.
 int my_str_append(my_str_t* str, const my_str_t* from){
     if(str->capacity_m - str->size_m < from->size_m)
         return -1;
@@ -301,7 +302,7 @@ int my_str_cmp(my_str_t* str, const char* from){
 //! Якщо end виходить за межі str -- скопіювати скільки вдасться, не вважати
 //! це помилкою. Якщо ж в ціловій стрічці замало місця, або beg більший
 //! за розмір str -- це помилка. Повернути відповідний код завершення.
-int my_str_substr(const my_str_t* str, char* to, size_t beg, size_t end);
+int my_str_substr(const my_str_t* str, const char* to, size_t beg, size_t end);
 
 
 //! Повернути вказівник на С-стрічку, еквівалентну str.
@@ -310,7 +311,7 @@ int my_str_substr(const my_str_t* str, char* to, size_t beg, size_t end);
 //! просто додати нульовий символ в кінці та повернути вказівник data.
 const char* my_str_get_cstr(my_str_t* str) {
     if (!str || !(str->data))
-        return -3;
+        (size_t)-3u;
     *(str->data + 1) = '\0';
     *(str->data + str->size_m) = '\0';
     return str->data;
@@ -321,10 +322,10 @@ const char* my_str_get_cstr(my_str_t* str) {
 //! Якщо більше за розмір -- вважати, що не знайдено.
 size_t my_str_find(const my_str_t* str, const my_str_t* tofind, size_t from){
     if (!str || !tofind)
-        return -3;
+        return (size_t)-3u;
 
     if (str->size_m < from)
-        return -1;
+        return (size_t)-1u;
 
     size_t size = str->size_m;
     size_t subsize = tofind->size_m;
@@ -337,7 +338,7 @@ size_t my_str_find(const my_str_t* str, const my_str_t* tofind, size_t from){
         if (j == subsize)
             return from;
     }
-    return -1;
+    return (size_t)-1u;
 
 }
 //! Знайти перший символ в стрічці, повернути його номер
@@ -345,15 +346,15 @@ size_t my_str_find(const my_str_t* str, const my_str_t* tofind, size_t from){
 //! Якщо більше за розмір -- вважати, що не знайдено.
 size_t my_str_find_c(const my_str_t* str, char tofind, size_t from){
     if (!str)
-        return -3;
+        return (size_t)-3u;
     if (from > str->size_m)
-        return -1;
+        return (size_t)-1u;
 
     for (from; from < str->size_m; from++){
         if (*(str->data + from) == tofind)
             return from;
     }
-    return -1;
+    return (size_t)-1u;
 }
 
 //! Знайти символ в стрічці, для якого передана
@@ -361,23 +362,23 @@ size_t my_str_find_c(const my_str_t* str, char tofind, size_t from){
 //! або -1u, якщо не знайдено:
 size_t my_str_find_if(const my_str_t* str, int (*predicate)(char)){
     if (!str)
-        return -3;
+        return (size_t)-3u;
 
     for (size_t i = 0; i < str->size_m; i++){
         if (predicate(*(str->data + i)) == 1)
             return i;
     }
-    return -1;
+    return (size_t)-1u;
 }
 
 //! Прочитати стрічку із файлу. Повернути, 0, якщо успішно, -1,
 //! якщо сталися помилки. Кінець вводу -- не помилка, однак,
 //! слід не давати читанню вийти за межі буфера!
 //! Рекомендую скористатися fgets().
-size_t my_str_read_file(my_str_t* str, FILE* file);
+int my_str_read_file(my_str_t* str, FILE* file);
 
 //! Аналог my_str_read_file, із stdin
-size_t my_str_read(my_str_t* str){
+int my_str_read(my_str_t* str){
     if (!str)
         return -3;
     fgets(str->data, str->capacity_m + 1, stdin);
@@ -389,10 +390,12 @@ size_t my_str_read(my_str_t* str){
 
 int main() {
     my_str_t x;
-    my_str_from_cstr(&x, "Hello", 10);
-    my_str_putc(&x, 10, 'r');
-    printf("%s", x.data);
-    printf("%i", x.size_m);
-
+    my_str_create(&x, 10);
+    for (int i = 0; i<3; i++)
+        my_str_pushback(&x, (char)i + 'a');
+    my_str_t y;
+    my_str_create(&y, 5);
+    print_str(&x);
+   // print_str(&y);
     return 0;
 }
