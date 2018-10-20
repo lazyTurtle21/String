@@ -17,6 +17,8 @@ static int print(const char* str, size_t size) {
 }
 
 static int print_str(const my_str_t* str){
+    if (!str)
+        return -3;
     for (int i = 0; i < str->size_m; i++)
         printf("%c ", *(str->data + i));
     printf("\n");
@@ -241,6 +243,9 @@ int my_str_append_cstr(my_str_t* str, const char* from);
 //! -1, якщо перша менша, 1 -- якщо друга.
 //! Поведінка має бути такою ж, як в strcmp.
 int my_str_cmp(my_str_t* str, const char* from){
+    if (!str)
+        return -3;
+
     size_t counter = 0;
     for (int i = 0; i < str->size_m; i ++){
         if (!*(from + i))
@@ -252,7 +257,6 @@ int my_str_cmp(my_str_t* str, const char* from){
         return 0;
     return -1;
 }
-
 
 //! Скопіювати підстрічку, із beg включно, по end не включно ([beg, end)).
 //! Якщо end виходить за межі str -- скопіювати скільки вдасться, не вважати
@@ -297,7 +301,6 @@ size_t my_str_find(const my_str_t* str, const my_str_t* tofind, size_t from){
     return -1;
 
 }
-
 //! Знайти перший символ в стрічці, повернути його номер
 //! або -1u, якщо не знайдено. from -- місце, з якого починати шукати.
 //! Якщо більше за розмір -- вважати, що не знайдено.
@@ -335,24 +338,25 @@ size_t my_str_find_if(const my_str_t* str, int (*predicate)(char)){
 size_t my_str_read_file(my_str_t* str, FILE* file);
 
 //! Аналог my_str_read_file, із stdin
-size_t my_str_read(my_str_t* str);
+size_t my_str_read(my_str_t* str){
+    if (!str)
+        return -3;
+    fgets(str->data, str->capacity_m + 1, stdin);
+    str->size_m = strlen(str->data);
+    return 0;
+}
 
 
 
 int main() {
     my_str_t x;
     my_str_create(&x, 10);
-    for (int i = 0; i<5; i++)
+    for (int i = 0; i<3; i++)
         my_str_pushback(&x, (char)i + 'a');
     my_str_t y;
     my_str_create(&y, 5);
-    for (int i = 0; i<3; i++)
-        my_str_pushback(&y, (char)i + 'b');
     print_str(&x);
-    print_str(&y);
+   // print_str(&y);
 
-//    print_str(&x);
-//    print_str(&y);
-    printf("%i", my_str_find(&x, &y, 10));
     return 0;
 }
