@@ -151,10 +151,10 @@ void my_str_clear(my_str_t* str);
 //! Якщо це неможливо, повертає -1, інакше 0.
 //? -3 -- null pointer exception
 int my_str_insert_c(my_str_t* str, char c, size_t pos) {
-	if (str->size_m >= str->capacity_m)
-		return -1;
 	if (!str)
 		return -3;
+	if (str->size_m >= str->capacity_m)
+		return -1;
 
 	int size = str->size_m;
 	while (size-- != pos) 
