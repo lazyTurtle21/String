@@ -16,7 +16,7 @@ const size_t strlen(const char* str) {
 	if (!str)
 		return -3;
 
-	int length = 0;
+	size_t length = 0;
 	while (*(str + ++length)) {}
 	return length;
 }
