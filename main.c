@@ -240,7 +240,19 @@ int my_str_append_cstr(my_str_t* str, const char* from);
 //! Порівняти стрічки, повернути 0, якщо рівні (за вмістом!)
 //! -1, якщо перша менша, 1 -- якщо друга.
 //! Поведінка має бути такою ж, як в strcmp.
-int my_str_cmp(my_str_t* str, const char* from);
+int my_str_cmp(my_str_t* str, const char* from){
+    size_t counter = 0;
+    for (int i = 0; i < str->size_m; i ++){
+        if (!*(from + i))
+            return 1;
+        if (*(from + i) == *(str->data + i))
+            counter ++;
+    }
+    if (!*(from + counter) && counter == str->size_m)
+        return 0;
+    return -1;
+}
+
 
 //! Скопіювати підстрічку, із beg включно, по end не включно ([beg, end)).
 //! Якщо end виходить за межі str -- скопіювати скільки вдасться, не вважати
