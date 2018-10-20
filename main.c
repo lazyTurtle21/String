@@ -196,7 +196,11 @@ int my_str_copy(const my_str_t* from,  my_str_t* to, int reserve){
 }
 
 //! Очищає стрічку -- робить її порожньою. Складність має бути О(1).
-void my_str_clear(my_str_t* str);
+void my_str_clear(my_str_t* str){
+    tr->data = 0;
+    str->size_m = 0;
+    str->capacity_m = 0;
+}
 
 //! Вставити символ у стрічку в заданій позиції, змістивши решту символів праворуч.
 //! Якщо це неможливо, повертає -1, інакше 0.
