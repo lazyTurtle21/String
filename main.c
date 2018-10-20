@@ -75,7 +75,12 @@ int my_str_from_cstr(my_str_t* str, const char* cstr, size_t buf_size) {
 }
 
 //! Звільнє пам'ять, знищуючи стрічку:
-void my_str_free(my_str_t* str);
+void my_str_free(my_str_t* str){
+    free(str->data);
+    str->data = 0;
+    str->size_m = 0;
+    str->capacity_m = 0;
+}
 
 //! Повертає розмір стрічки:
 //? -3 -- null pointer exception
@@ -119,11 +124,20 @@ int my_str_putc(my_str_t* str, size_t index, char c) {
     if (index < 0 || index > str->size_m)
         return -1;
     *(str->data + index) = c;
+    return 0;
 }
 
+//? -3 -- null pointer exception
 //! Додає символ в кінець.
 //! Повертає 0, якщо успішно, -1, якщо буфер закінчився.
-int my_str_pushback(my_str_t* str, char c);
+int my_str_pushback(my_str_t* str, char c){
+    if (!str)
+        return -3;
+    if (str->capacity_m < str->size_m)
+        return -1;
+    *(str->data + str->size_m++) = c;
+    return 0;
+}
 
 //! Викидає символ з кінця.
 //! Повертає його, якщо успішно, -1, якщо буфер закінчився.
@@ -132,8 +146,10 @@ int my_str_popback(my_str_t* str){
     if (!str)
         return -3;
     if(str->size_m <= str->capacity_m){
+        char c_to_pop = *(str->data + str->size_m - 1);
         *(str->data + str->size_m - 1) = 0;
         str->size_m -= 1;
+        return c_to_pop;
     }
     return -1;
 }
@@ -142,10 +158,30 @@ int my_str_popback(my_str_t* str){
 //! то із тим же розміром буферу, що й вихідна,
 //! інакше -- із буфером мінімального достатнього розміру.
 //! Старий вміст стрічки перед тим звільняє, за потреби.
-int my_str_copy(const my_str_t* from,  my_str_t* to, int reserve);
+int my_str_copy(const my_str_t* from,  my_str_t* to, int reserve){
+    if (!from || !to)
+        return -3;
+
+    if (to->capacity_m < from->size_m)
+        return -1;
+
+    if (reserve == 1){
+        to->capacity_m = from->capacity_m;
+    } else{
+        to->capacity_m = from->size_m + 1;
+    }
+    to->size_m = from->size_m;
+    for (int i = 0; i < from->size_m; i++)
+        *(to->data + i) = *(from->data + i);
+    return 0;
+}
 
 //! Очищає стрічку -- робить її порожньою. Складність має бути О(1).
-void my_str_clear(my_str_t* str);
+void my_str_clear(my_str_t* str){
+    str->data = 0;
+    str->size_m = 0;
+    str->capacity_m = 0;
+}
 
 //! Вставити символ у стрічку в заданій позиції, змістивши решту символів праворуч.
 //! Якщо це неможливо, повертає -1, інакше 0.
@@ -175,11 +211,24 @@ int my_str_insert_cstr(my_str_t* str, const char* from, size_t pos);
 
 //! Додати стрічку в кінець.
 //! Якщо це неможливо, повертає -1, інакше 0.
-int my_str_append(my_str_t* str, const my_str_t* from);
+int my_str_append(my_str_t* str, const my_str_t* from){
+    if(str->capacity_m - str->size_m < from->size_m)
+        return -1;
+    for (int i = 0; i < from->size_m; i++)
+        my_str_pushback(str, *(from->data + i));
+    return 0;
+}
 
 //! Додати С-стрічку в кінець.
 //! Якщо це неможливо, повертає -1, інакше 0.
-int my_str_append_cstr(my_str_t* str, const char* from);
+int my_str_append_cstr(my_str_t* str, const char* from){
+    int c_str_len = strlen(from);
+    if(str->capacity_m - str->size_m < c_str_len)
+        return -1;
+    for (int i = 0; i < c_str_len; i++)
+        my_str_pushback(str, *(from + i));
+    return 0;
+}
 
 //! Порівняти стрічки, повернути 0, якщо рівні (за вмістом!)
 //! -1, якщо перша менша, 1 -- якщо друга.
@@ -190,7 +239,7 @@ int my_str_cmp(my_str_t* str, const char* from);
 //! Якщо end виходить за межі str -- скопіювати скільки вдасться, не вважати
 //! це помилкою. Якщо ж в ціловій стрічці замало місця, або beg більший
 //! за розмір str -- це помилка. Повернути відповідний код завершення.
-int my_str_substr(const my_str_t* str, const char* to, size_t beg, size_t end);
+int my_str_substr(const my_str_t* str, char* to, size_t beg, size_t end);
 
 
 //! Повернути вказівник на С-стрічку, еквівалентну str.
@@ -229,9 +278,13 @@ size_t my_str_read(my_str_t* str);
 
 int main() {
     my_str_t x;
-    my_str_from_cstr(&x, "Hello", 10);
-    my_str_putc(&x, 10, 'r');
-    printf("%s", x.data);
-    printf("%i", x.size_m);
+    my_str_create(&x, 10);
+    for (int i = 0; i<3; i++)
+        my_str_pushback(&x, (char)i + 'a');
+    my_str_t y;
+    my_str_create(&y, 5);
+    print_str(&x);
+    // print_str(&y);
 
+    return 0;
 }
