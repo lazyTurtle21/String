@@ -179,9 +179,9 @@ int my_str_popback(my_str_t* str){
 int my_str_copy(const my_str_t* from,  my_str_t* to, int reserve){
     if (!from || !to)
         return -3;
-     if (to->capacity_m < from->size_m)
+    if (to->capacity_m < from->size_m)
         return -1;
-     if (reserve == 1)
+    if (reserve == 1)
         to->capacity_m = from->capacity_m;
     else
         to->capacity_m = from->size_m + 1;
@@ -193,7 +193,7 @@ int my_str_copy(const my_str_t* from,  my_str_t* to, int reserve){
 
 //! Очищає стрічку -- робить її порожньою. Складність має бути О(1).
 void my_str_clear(my_str_t* str){
-    tr->data = 0;
+    str->data = 0;
     str->size_m = 0;
     str->capacity_m = 0;
 }
@@ -381,7 +381,8 @@ int my_str_read_file(my_str_t* str, FILE* file);
 int my_str_read(my_str_t* str){
     if (!str)
         return -3;
-    fgets(str->data, str->capacity_m + 1, stdin);
+    if (!fgets(str->data, str->capacity_m + 1, stdin))
+        return -1;
     str->size_m = strlen(str->data);
     return 0;
 }
