@@ -86,7 +86,12 @@ size_t my_str_size(const my_str_t* str) {
 }
 
 //! Повертає розмір буфера:
-size_t my_str_capacity(const my_str_t* str);
+//? -3 -- null pointer exception
+size_t my_str_capacity(const my_str_t* str) {
+	if (!str)
+		return -3;
+	return str->capacity_m;
+}
 
 //! Повертає булеве значення, чи стрічка порожня:
 int my_str_empty(const my_str_t* str);
@@ -107,7 +112,14 @@ int my_str_getc(const my_str_t* str, size_t index) {
 //! Записує символ у вказану позиції (заміняючи той, що там був),
 //! Повертає 0, якщо позиція в межах стрічки,
 //! Поветає -1, не змінюючи її вмісту, якщо ні.
-int my_str_putc(my_str_t* str, size_t index, char c);
+//? -3 -- null pointer exception
+int my_str_putc(my_str_t* str, size_t index, char c) {
+    if (!str)
+        return -3;
+    if (index < 0 || index > str->size_m)
+        return -1;
+    *(str->data + index) = c;
+}
 
 //! Додає символ в кінець.
 //! Повертає 0, якщо успішно, -1, якщо буфер закінчився.
@@ -115,7 +127,16 @@ int my_str_pushback(my_str_t* str, char c);
 
 //! Викидає символ з кінця.
 //! Повертає його, якщо успішно, -1, якщо буфер закінчився.
-int my_str_popback(my_str_t* str);
+//? -3 -- null pointer exception
+int my_str_popback(my_str_t* str){
+    if (!str)
+        return -3;
+    if(str->size_m <= str->capacity_m){
+        *(str->data + str->size_m - 1) = 0;
+        str->size_m -= 1;
+    }
+    return -1;
+}
 
 //! Копіює стрічку. Якщо reserve == true,
 //! то із тим же розміром буферу, що й вихідна,
@@ -207,7 +228,10 @@ size_t my_str_read(my_str_t* str);
 
 
 int main() {
-	my_str_t x;
-	my_str_create(&x, 10);
-	return 0;
+    my_str_t x;
+    my_str_from_cstr(&x, "Hello", 10);
+    my_str_putc(&x, 10, 'r');
+    printf("%s", x.data);
+    printf("%i", x.size_m);
+
 }
