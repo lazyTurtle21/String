@@ -1,13 +1,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
-
-typedef struct {
-    size_t capacity_m; // Розмір блока
-    size_t size_m;	   // Фактичний розмір стрічки
-    char*  data;	   // Вказівник на блок пам'яті
-
-} my_str_t;
+#include "my_str_t.h"
 
 static int print(const char* str, size_t size) {
     for (int i = 0; i < size; i++)
@@ -27,7 +21,7 @@ static int print_str(const my_str_t* str){
 
 //? -3 -- null pointer exception
 //? рахує кількість символів без останнього ('\0')
-const size_t strlen(const char* str) {
+static size_t strlen(const char* str) {
     if (!str)
         return -3;
 
@@ -184,11 +178,11 @@ int my_str_copy(const my_str_t* from,  my_str_t* to, int reserve){
     if (to->capacity_m < from->size_m)
         return -1;
 
-    if (reserve == 1){
+    if (reserve == 1)
         to->capacity_m = from->capacity_m;
-    } else{
+    else
         to->capacity_m = from->size_m + 1;
-    }
+
     to->size_m = from->size_m;
     for (int i = 0; i < from->size_m; i++)
         *(to->data + i) = *(from->data + i);
@@ -298,7 +292,9 @@ int my_str_cmp(my_str_t* str, const char* from){
 //! Якщо end виходить за межі str -- скопіювати скільки вдасться, не вважати
 //! це помилкою. Якщо ж в ціловій стрічці замало місця, або beg більший
 //! за розмір str -- це помилка. Повернути відповідний код завершення.
-int my_str_substr(const my_str_t* str, char* to, size_t beg, size_t end);
+int my_str_substr(const my_str_t* str, char* to, size_t beg, size_t end){
+    return 0;
+}
 
 
 //! Повернути вказівник на С-стрічку, еквівалентну str.
@@ -356,7 +352,8 @@ size_t my_str_find_c(const my_str_t* str, char tofind, size_t from){
 //! Знайти символ в стрічці, для якого передана
 //! функція повернула true, повернути його номер
 //! або -1u, якщо не знайдено:
-size_t my_str_find_if(const my_str_t* str, int (*predicate)(char)){
+
+size_t my_str_find_if(const my_str_t *str, int (*predicate)(char)) {
     if (!str)
         return -3;
 
@@ -386,10 +383,14 @@ size_t my_str_read(my_str_t* str){
 
 int main() {
     my_str_t x;
-    my_str_from_cstr(&x, "Hello", 10);
-    my_str_putc(&x, 10, 'r');
-    printf("%s", x.data);
-    printf("%i", x.size_m);
+    my_str_from_cstr(&x, "Hlo", 5);
+    char str[2];
+    printf("%i", strlen(str));
+    char *p;
+    p = str;
+    my_str_substr(&x, p, 0, 3);
+    printf(p);
+
 
     return 0;
 }
