@@ -23,8 +23,13 @@ const size_t strlen(const char* str) {
 
 //! Створити стрічку із буфером вказаного розміру. Пам'ять виділяється динамічно.
 //! Варто виділяти buf_size+1 для спрощення роботи my_str_get_cstr().
+//? -3 -- null pointer exception
 int my_str_create(my_str_t* str, size_t buf_size) {
-	str->data = calloc((buf_size + 1), sizeof(char));
+
+	if (!str)
+		return -3;
+
+	str->data = malloc((buf_size + 1));
 
 	if (!str->data)
 		return -1;
