@@ -179,7 +179,6 @@ int my_str_insert_cstr(my_str_t* str, const char* from, size_t pos) {
 	if (str->size_m + strlen(from) > str->capacity_m)
 		return -1;
 
-	int i = 0;
 	int size = str->size_m;
 	int insert_size = strlen(from);
 
