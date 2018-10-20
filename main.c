@@ -184,11 +184,10 @@ int my_str_copy(const my_str_t* from,  my_str_t* to, int reserve){
     if (to->capacity_m < from->size_m)
         return -1;
 
-    if (reserve == 1){
+    if (reserve == 1)
         to->capacity_m = from->capacity_m;
-    } else{
+    else
         to->capacity_m = from->size_m + 1;
-    }
     to->size_m = from->size_m;
     for (int i = 0; i < from->size_m; i++)
         *(to->data + i) = *(from->data + i);
