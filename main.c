@@ -12,7 +12,7 @@ typedef struct {
 
 //? -3 -- null pointer exception
 //? рахує кількість символів без останнього ('\0')
-const size_t strlen(const char* str) {
+static const size_t strlen(const char* str) {
 	if (!str)
 		return -3;
 
@@ -217,7 +217,11 @@ int my_str_substr(const my_str_t* str, const char* to, size_t beg, size_t end);
 //! Якщо в буфері було зарезервовано на байт більше за макс. розмір, можна
 //! просто додати нульовий символ в кінці та повернути вказівник data.
 const char* my_str_get_cstr(my_str_t* str) {
-	*(str->data + 1) = '\0';
+	if (!str || !(str->data))
+		return -3;
+
+	*(str->data + str->size_m) = '\0';
+
 	return str->data;
 }
 
