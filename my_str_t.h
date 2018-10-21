@@ -1,7 +1,3 @@
-//
-// Created by User on 20.10.2018.
-//
-
 #ifndef LAB2_MY_STR_T_H
 #define LAB2_MY_STR_T_H
 
