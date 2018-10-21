@@ -145,7 +145,7 @@ int my_str_putc(my_str_t* str, size_t index, char c) {
 int my_str_pushback(my_str_t* str, char c){
     if (!str)
         return -3;
-    if (str->capacity_m < str->size_m)
+    if (str->capacity_m <= str->size_m)
         return -1;
     *(str->data + str->size_m++) = c;
     return 0;
