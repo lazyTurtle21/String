@@ -1,7 +1,3 @@
-//
-// Created by Yevhenii on 21/10/2018.
-//
-
 #include "second_task.h"
 
 void store_data(const char *filepath, const char *data) {
