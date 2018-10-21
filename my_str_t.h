@@ -9,7 +9,7 @@ typedef struct
 } my_str_t;
 static int print(const char* str, size_t size);
 static int print_str(const my_str_t* str);
-static size_t strlen(const char* str);
+static size_t my_str_len(const char* str);
 int my_str_create(my_str_t* str, size_t buf_size);
 int my_str_from_cstr(my_str_t* str, const char* cstr, size_t buf_size);
 void my_str_free(my_str_t* str);
