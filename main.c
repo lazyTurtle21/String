@@ -201,7 +201,7 @@ int my_str_insert_c(my_str_t* str, char c, size_t pos) {
     if (str->size_m >= str->capacity_m)
         return -1;
 
-    size_t size = str->size_m;
+    int size = str->size_m;
     while (size-- != pos)
         *(str->data + size + 1) = *(str->data + size);
     *(str->data + pos) = c;
@@ -233,18 +233,23 @@ int my_str_insert(my_str_t* str, const my_str_t* from, size_t pos){
 //! Вставити C-стрічку в заданій позиції, змістивши решту символів праворуч.
 //! Якщо це неможливо, повертає -1, інакше 0.
 int my_str_insert_cstr(my_str_t* str, const char* from, size_t pos) {
-    if (!str || !from)
+    if (!str)
         return -3;
+    if (!from)
+        return -4;
     if (str->size_m + strlen(from) > str->capacity_m)
         return -1;
 
-    size_t size = str->size_m;
-    size_t insert_size = strlen(from);
+    int size = str->size_m;
+    int insert_size = strlen(from);
+
     while (size-- != pos)
         *(str->data + size + insert_size) = *(str->data + size);
     while (*(from))
         *(str->data + pos++) = *(from++);
+
     str->size_m += insert_size;
+
     return 0;
 }
 
@@ -332,7 +337,6 @@ size_t my_str_find(const my_str_t* str, const my_str_t* tofind, size_t from){
             return from;
     }
     return (size_t)-1u;
-
 }
 //! Знайти перший символ в стрічці, повернути його номер
 //! або -1u, якщо не знайдено. from -- місце, з якого починати шукати.
@@ -368,7 +372,57 @@ size_t my_str_find_if(const my_str_t* str, int (*predicate)(char)){
 //! якщо сталися помилки. Кінець вводу -- не помилка, однак,
 //! слід не давати читанню вийти за межі буфера!
 //! Рекомендую скористатися fgets().
-int my_str_read_file(my_str_t* str, FILE* file);
+//! the name of functionn was changed 
+int my_str_read_file_until_end(my_str_t* str, FILE* file) {
+    if (!str)
+        return -3;
+    if (!file)
+        return -4;
+
+    if (!fgets(str->data, str->capacity_m, file))
+        return -1;
+
+    str->size_m = strlen(str->data);
+    return 0;
+}
+
+//! this function was added to the interface
+int my_str_read_file_until_blankspace(my_str_t* str, FILE* file) {
+    if (!str)
+        return -3;
+    if (!file)
+        return -4;
+
+    char format[32];
+    snprintf(format, sizeof(format), "%%%ds", str->capacity_m - 1);
+    int res = fscanf(file, format, str->data + str->size_m);
+
+    if (res == -1)
+        return -1;
+
+    str->size_m = strlen(str->data);
+
+    return 0;
+}
+
+//! this function was added to the interface
+int my_str_remove_c(my_str_t* str, size_t pos) {
+    if (!str)
+        return -3;
+    if(pos > str->size_m)
+        return -1;
+
+    while (pos < str->size_m)
+    {
+        *(str->data + pos) = *(str->data + pos);
+        pos++;
+    }
+
+    if(pos == str->size_m)
+        str->size_m--;
+
+    return 0;
+}
 
 //! Аналог my_str_read_file, із stdin
 int my_str_read(my_str_t* str){
@@ -377,19 +431,5 @@ int my_str_read(my_str_t* str){
     if (!fgets(str->data, str->capacity_m + 1, stdin))
         return -1;
     str->size_m = strlen(str->data);
-    return 0;
-}
-
-
-
-int main() {
-    my_str_t x;
-    my_str_create(&x, 10);
-    for (int i = 0; i<3; i++)
-        my_str_pushback(&x, (char)i + 'a');
-    my_str_t y;
-    my_str_create(&y, 5);
-    print_str(&x);
-   // print_str(&y);
     return 0;
 }
