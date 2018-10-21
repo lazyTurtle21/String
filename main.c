@@ -21,7 +21,7 @@ static int print_str(const my_str_t* str){
 
 //? -3 -- null pointer exception
 //? рахує кількість символів без останнього ('\0')
-static size_t strlen(const char* str) {
+static size_t my_str_len(const char* str) {
     if (!str)
         return (size_t)-3u;
 
@@ -58,7 +58,7 @@ int my_str_create(my_str_t* str, size_t buf_size) {
 //? чи треба тут (str->capacity_m = str->size_m + 1) виділяти +1 резервний байт місця?
 //? чи треба записувати '\0' в кінець str->data?
 int my_str_from_cstr(my_str_t* str, const char* cstr, size_t buf_size) {
-    size_t str_length = strlen(cstr);
+    size_t str_length = my_str_len(cstr);
 
     if (!str)
         return -3;
@@ -237,11 +237,11 @@ int my_str_insert_cstr(my_str_t* str, const char* from, size_t pos) {
         return -3;
     if (!from)
         return -4;
-    if (str->size_m + strlen(from) > str->capacity_m)
+    if (str->size_m + my_str_len(from) > str->capacity_m)
         return -1;
 
     int size = str->size_m;
-    int insert_size = strlen(from);
+    int insert_size = my_str_len(from);
 
     while (size-- != pos)
         *(str->data + size + insert_size) = *(str->data + size);
@@ -267,7 +267,7 @@ int my_str_append(my_str_t* str, const my_str_t* from){
 //! Додати С-стрічку в кінець.
 //! Якщо це неможливо, повертає -1, інакше 0.
 int my_str_append_cstr(my_str_t* str, const char* from){
-    int c_str_len = strlen(from);
+    int c_str_len = my_str_len(from);
     if(str->capacity_m - str->size_m < c_str_len)
         return -1;
     for (int i = 0; i < c_str_len; i++)
@@ -372,7 +372,7 @@ size_t my_str_find_if(const my_str_t* str, int (*predicate)(char)){
 //! якщо сталися помилки. Кінець вводу -- не помилка, однак,
 //! слід не давати читанню вийти за межі буфера!
 //! Рекомендую скористатися fgets().
-//! the name of functionn was changed 
+//! the name of functionn was changed
 int my_str_read_file_until_end(my_str_t* str, FILE* file) {
     if (!str)
         return -3;
@@ -382,7 +382,7 @@ int my_str_read_file_until_end(my_str_t* str, FILE* file) {
     if (!fgets(str->data, str->capacity_m, file))
         return -1;
 
-    str->size_m = strlen(str->data);
+    str->size_m = my_str_len(str->data);
     return 0;
 }
 
@@ -400,7 +400,7 @@ int my_str_read_file_until_blankspace(my_str_t* str, FILE* file) {
     if (res == -1)
         return -1;
 
-    str->size_m = strlen(str->data);
+    str->size_m = my_str_len(str->data);
 
     return 0;
 }
@@ -430,6 +430,6 @@ int my_str_read(my_str_t* str){
         return -3;
     if (!fgets(str->data, str->capacity_m + 1, stdin))
         return -1;
-    str->size_m = strlen(str->data);
+    str->size_m = my_str_len(str->data);
     return 0;
 }
