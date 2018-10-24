@@ -1,5 +1,7 @@
-#include "my_str_t.h"
 #include <string.h>
+#include <errno.h>
+#include "my_str_t.h"
+
 
 void write_data(FILE* file, const char *data) {
     fputs(data, file);
@@ -8,9 +10,8 @@ void write_data(FILE* file, const char *data) {
 
 int main(int argc, char * argv[]) {
     if(argc != 3) {
-        errno = 5;
-        fprintf(stderr, "Wrong number of arguments: %s\n", strerror(errno));
-        return -1;
+        fprintf(stderr, "Wrong number of arguments: %s\n", strerror(EINVAL));
+        return EINVAL;
     }
 
     FILE *input = fopen(argv[1], "r");
@@ -18,20 +19,19 @@ int main(int argc, char * argv[]) {
 
     if (!output) {
         fprintf(stderr, "Error creating the file: %s\n", strerror(errno));
-        return EXIT_FAILURE;
+        return errno;
     }
 
     if (!input) {
         fprintf(stderr, "Error opening the file: %s\n", strerror(errno));
-        return EXIT_FAILURE;
+        return errno;
     }
 
     my_str_t word;
 
     if (my_str_create(&word, 100)){
-        errno = 12;
-        fprintf(stderr, "Unable to create string: %s\n", strerror(errno));
-        return EXIT_FAILURE;
+        fprintf(stderr, "Unable to create string: %s\n", strerror(ENOMEM));
+        return ENOMEM;
     }
 
     while (my_str_read_file_until_blankspace(&word, input) != -1){
