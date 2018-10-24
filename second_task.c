@@ -1,48 +1,58 @@
-#include "second_task.h"
+#include "my_str_t.h"
 
-void store_data(const char *filepath, const char *data) {
-    FILE *fp = fopen(filepath, "w");
 
-    if (fp == NULL) {
-        printf("Unable to create file.\n");
-        exit(EXIT_FAILURE);
-    }
-    printf("%s", "> output file was successfully created...");
-    fputs(data, fp);
-    printf("%s", "> data was successfully stored to output file...");
-    fclose(fp);
+void write_data(FILE* file, const char *data) {
+    fputs(data, file);
 }
 
+
 int main(int argc, char * argv[]) {
-    if(argc != 3)
-    {
-        printf("%s", "You should pass 2 arguments: name of the input file, name of the output file...");
+    if(argc != 3) {
+        printf("%s", "You have to pass 2 arguments: name of the input file, name of the output file");
         return -1;
     }
 
-    my_str_t str;
-    my_str_create(&str, 100);
+    FILE *input= fopen(argv[1], "r");
+    FILE *output = fopen(argv[2], "w");
 
-    FILE *file;
-    file = fopen(argv[1], "r");
+    if (!output) {
+        printf("Unable to create output file.\n");
+        exit(EXIT_FAILURE);
+    }
 
-    if (file) {
-        while (my_str_read_file_until_blankspace(&str, file) != -1)
-            my_str_pushback(&str, ' ');
+    if (!input) {
+        printf("Unable to find input file.\n");
+        exit(EXIT_FAILURE);
+    }
 
-        for (size_t i = 0; i < str.size_m; i++) {
-            if (!isalpha(my_str_getc(&str, i)) && !isblank(my_str_getc(&str, i)))
-                my_str_remove_c(&str, i);
-            if(isupper(my_str_getc(&str, i)))
-                my_str_putc(&str, i, (char)tolower(my_str_getc(&str, i)));
+    my_str_t word;
+
+    if (my_str_create(&word, 100)){
+        printf("Unable to create string.");
+        exit(EXIT_FAILURE);
+    }
+
+    while (my_str_read_file_until_blankspace(&word, input) != -1){
+        my_str_pushback(&word, ' ');
+
+        for (size_t i = 0; i < word.size_m; i++) {
+            if (ispunct(my_str_getc(&word, i))) {
+                my_str_remove_c(&word, i);
+                i--;
+            }
+            if (isupper(my_str_getc(&word, i)))
+                my_str_putc(&word, i, (char) tolower(my_str_getc(&word, i)));
         }
-        fclose(file);
-        store_data(argv[2], my_str_get_cstr(&str));
-        return 0;
+
+        write_data(output, my_str_get_cstr(&word));
+        my_str_clear(&word);
+
     }
-    else{
-        printf("%s", "File wasn't found...");
-        return -1;
-    }
+
+    fclose(input);
+    fclose(output);
+
+
+    return 0;
 }
 
