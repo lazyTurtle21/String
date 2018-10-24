@@ -1,4 +1,5 @@
 #include "my_str_t.h"
+
 #define NULL_POINTER_ERROR_INT -3;
 #define NULL_POINTER_ERROR_SIZE_T (size_t)-3u;
 #define MEMORY_ALLOCATION_ERROR_SIZE_T -2;
@@ -262,24 +263,26 @@ int my_str_append_cstr(my_str_t* str, const char* from){
     return SUCCESS_INT;
 }
 
+
 //! Порівняти стрічки, повернути 0, якщо рівні (за вмістом!)
-//! -1, якщо перша менша, 1 -- якщо друга.
-size_t my_str_cmp(my_str_t* str1, const char* str2){
+//! від'ємне значення, якщо перша менша, додатнє -- якщо друга.
+int my_str_cmp(my_str_t* str1, const char* str2){
     if (!str1)
         return (size_t )-3u;
 
-    size_t counter = 0;
+    int counter = 0;
     for (int i = 0; i < str1->size_m; i ++){
         if (!*(str2 + i))
             return (str1->size_m - counter);
         if (*(str2 + i) == *(str1->data + i))
             counter ++;
     }
-    size_t str2_len = str1->size_m;
-    while(str2 + str2_len++ ){}
+    int str2_len = str1->size_m;
+    while(*(str2 + str2_len++)){}
 
     return counter - str2_len;
 }
+
 
 //! Скопіювати підстрічку, із beg включно, по end не включно ([beg, end)).
 //! Якщо end виходить за межі str -- скопіювати скільки вдасться, не вважати
@@ -296,7 +299,7 @@ int my_str_substr(const my_str_t* str, char* to, size_t beg, size_t end){
 //! просто додати нульовий символ в кінці та повернути вказівник data.
 const char* my_str_get_cstr(my_str_t* str) {
     if (!str || !(str->data))
-        return -3;
+        return NULL;
     *(str->data + str->size_m) = '\0';
     return str->data;
 }
