@@ -7,7 +7,7 @@
 static size_t cstr_len(const char* str) {
     if (!str) {
         fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
-        return (size_t)EXIT_FAILURE;
+        return (size_t)EFAULT;
     }
     size_t length = 0;
     while (*(str + ++length)) {}
@@ -45,8 +45,10 @@ int my_str_from_cstr(my_str_t* str, const char* cstr, size_t buf_size) {
         return fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
         return EXIT_FAILURE;
     }
-    if (buf_size < str_length)
-        return EXIT_FAILURE;
+    if (buf_size < str_length){
+        fprintf(stderr, "Argument is out of str boundary: %s\n", strerror(EINVAL));
+        return EINVAL;
+    }
 
     str->size_m = str_length;
     if (buf_size <= 0)
@@ -107,8 +109,10 @@ int my_str_getc(const my_str_t* str, size_t index) {
         return EXIT_FAILURE;
     }
 
-    if (index < 0 || index >= str->size_m)
-        return EXIT_FAILURE;
+    if (index < 0 || index >= str->size_m){
+        fprintf(stderr, "Argument is out of str boundary: %s\n", strerror(EINVAL));
+        return EINVAL;
+    }
 
     return *(str->data + index);
 }
@@ -119,8 +123,10 @@ int my_str_putc(my_str_t* str, size_t index, char c) {
         fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
         return EXIT_FAILURE;
     }
-    if (index < 0 || index >= str->size_m)
-        return EXIT_FAILURE;
+    if (index < 0 || index >= str->size_m){
+        fprintf(stderr, "Argument is out of str boundary: %s\n", strerror(EINVAL));
+        return EINVAL;
+    }
     *(str->data + index) = c;
     return EXIT_SUCCESS;
 }
@@ -133,8 +139,10 @@ int my_str_pushback(my_str_t* str, char c){
         fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
         return EXIT_FAILURE;;
     }
-    if (str->capacity_m <= str->size_m)
+    if (str->capacity_m <= str->size_m){
+        printf("Str is full: cannot add an element");
         return EXIT_FAILURE;
+    }
     *(str->data + str->size_m++) = c;
     return EXIT_SUCCESS;
 }
@@ -164,8 +172,10 @@ int my_str_copy(const my_str_t* from,  my_str_t* to, int reserve){
         return EXIT_FAILURE;
     }
 
-    if (to->capacity_m < from->size_m)
-        return EXIT_FAILURE;
+    if (to->capacity_m < from->size_m){
+        fprintf(stderr, "Argument is out of str boundary: %s\n", strerror(EINVAL));
+        return EINVAL;
+    }
 
     if (reserve == 1)
         to->capacity_m = from->capacity_m;
@@ -193,8 +203,10 @@ int my_str_insert_c(my_str_t* str, char c, size_t pos) {
         return EXIT_FAILURE;
     }
 
-    if (str->size_m >= str->capacity_m || pos >= str->size_m)
-        return EXIT_FAILURE;
+    if (str->size_m >= str->capacity_m || pos >= str->size_m){
+        fprintf(stderr, "Argument is out of str boundary: %s\n", strerror(EINVAL));
+        return EINVAL;
+    }
 
     size_t size = str->size_m;
     while (size-- != pos)
@@ -212,8 +224,10 @@ int my_str_insert(my_str_t* str, const my_str_t* from, size_t pos){
         fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
         return EXIT_FAILURE;
     }
-    if ((str->size_m + from->size_m > str->capacity_m) ||(pos >= str->size_m))
-        return EXIT_FAILURE;
+    if ((str->size_m + from->size_m > str->capacity_m) ||(pos >= str->size_m)){
+        fprintf(stderr, "Argument is out of str boundary: %s\n", strerror(EINVAL));
+        return EINVAL;
+    }
 
     size_t size = str->size_m;
     size_t insert_size = from->size_m;
@@ -240,8 +254,10 @@ int my_str_insert_cstr(my_str_t* str, const char* from, size_t pos) {
         return EXIT_FAILURE;
     }
 
-    if ((str->size_m + cstr_len(from)) > str->capacity_m ||(pos >= str->size_m))
-        return EXIT_FAILURE;
+    if ((str->size_m + cstr_len(from)) > str->capacity_m || pos >= str->size_m){
+        fprintf(stderr, "Argument is out of str boundary: %s\n", strerror(EINVAL));
+        return EINVAL;
+    }
 
     int size = str->size_m;
     int insert_size = cstr_len(from);
@@ -264,8 +280,10 @@ int my_str_append(my_str_t* str, const my_str_t* from){
         return EXIT_FAILURE;
     }
 
-    if(str->capacity_m - str->size_m < from->size_m)
-        return EXIT_FAILURE;
+    if (str->capacity_m - str->size_m < from->size_m) {
+        fprintf(stderr, "Argument is out of str boundary: %s\n", strerror(EINVAL));
+        return EINVAL;
+    }
 
     for (int i = 0; i < from->size_m; i++)
         my_str_pushback(str, *(from->data + i));
@@ -281,8 +299,11 @@ int my_str_append_cstr(my_str_t* str, const char* from){
     }
 
     int len = cstr_len(from);
-    if(str->capacity_m - str->size_m < len)
-        return EXIT_FAILURE;
+
+    if (str->capacity_m - str->size_m < len) {
+        fprintf(stderr, "Argument is out of str boundary: %s\n", strerror(EINVAL));
+        return EINVAL;
+    }
 
     for (int i = 0; i < len; i++)
         my_str_pushback(str, *(from + i));
@@ -343,8 +364,10 @@ size_t my_str_find(const my_str_t* str, const my_str_t* tofind, size_t from){
         return (size_t)EXIT_FAILURE;
     }
 
-    if (str->size_m <= from)
-        return (size_t)EXIT_FAILURE;
+    if (from >= str->size_m) {
+        fprintf(stderr, "Argument is out of str boundary: %s\n", strerror(EINVAL));
+        return EINVAL;
+    }
 
     size_t size = str->size_m;
     size_t subsize = tofind->size_m;
@@ -368,8 +391,11 @@ size_t my_str_find_c(const my_str_t* str, char tofind, size_t from){
         fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
         return (size_t)EXIT_FAILURE;
     }
-    if (from >= str->size_m)
-        return (size_t)EXIT_FAILURE;
+
+    if (from >= str->size_m) {
+        fprintf(stderr, "Incorrect argument from: %s\n", strerror(EINVAL));
+        return EINVAL;
+        }
 
     for (from; from < str->size_m; from++){
         if (*(str->data + from) == tofind)
@@ -405,8 +431,10 @@ int my_str_read_file_until_end(my_str_t* str, FILE* file) {
         return EXIT_FAILURE;
     }
 
-    if (!fgets(str->data, str->capacity_m, file))
-        return EXIT_FAILURE;
+    if (!fgets(str->data, str->capacity_m, file)) {
+        fprintf(stderr, "A read error occured: %s\n", strerror(errno));
+        return errno;
+    }
 
     str->size_m = cstr_len(str->data);
     return EXIT_SUCCESS;
@@ -423,7 +451,7 @@ int my_str_read_file_until_blankspace(my_str_t* str, FILE* file) {
     snprintf(format, sizeof(format), "%%%ds", str->capacity_m - 1);
     int res = fscanf(file, format, str->data + str->size_m);
 
-    if (res == -1)
+    if (res == -1)  // The end of file, not an error
         return EXIT_FAILURE;
 
     str->size_m = cstr_len(str->data);
@@ -437,8 +465,10 @@ int my_str_read(my_str_t* str){
         fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
         return EXIT_FAILURE;
     }
-    if (!fgets(str->data, str->capacity_m + 1, stdin))
-        return EXIT_FAILURE;
+    if (!fgets(str->data, str->capacity_m + 1, stdin)) {
+        fprintf(stderr, "Did not manage to get the input: %s\n", strerror(EIO));
+        return EIO;
+    }
     str->size_m = cstr_len(str->data);
     return EXIT_SUCCESS;
 }
@@ -449,12 +479,13 @@ int my_str_read(my_str_t* str){
 //! Removes character in position <pos> from string
 int my_str_remove_c(my_str_t* str, size_t pos) {
     if (!str) {
-        return fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
-        return EXIT_FAILURE;
+        fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
+        return EFAULT;
     }
-    if (pos > str->size_m)
-        return EXIT_FAILURE;
-
+    if (pos > str->size_m) {
+        fprintf(stderr, "Incorrect argument pos: %s\n", strerror(EINVAL));
+        return EINVAL;
+    }
     while (pos < str->size_m)
     {
         *(str->data + pos) = *(str->data + pos + 1);
@@ -471,7 +502,7 @@ int my_str_remove_c(my_str_t* str, size_t pos) {
 int print_str(const my_str_t* str){
     if (!str){
         fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
-        return EXIT_FAILURE;
+        return EFAULT;
     }
     for (int i = 0; i < str->size_m; i++)
         printf("%c", *(str->data + i));
