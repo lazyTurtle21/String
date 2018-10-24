@@ -1,5 +1,5 @@
 #include "my_str_t.h"
-
+#include <string.h>
 
 void write_data(FILE* file, const char *data) {
     fputs(data, file);
@@ -8,28 +8,30 @@ void write_data(FILE* file, const char *data) {
 
 int main(int argc, char * argv[]) {
     if(argc != 3) {
-        printf("%s", "You have to pass 2 arguments: name of the input file, name of the output file");
+        errno = 5;
+        fprintf(stderr, "Wrong number of arguments: %s\n", strerror(errno));
         return -1;
     }
 
-    FILE *input= fopen(argv[1], "r");
+    FILE *input = fopen(argv[1], "r");
     FILE *output = fopen(argv[2], "w");
 
     if (!output) {
-        printf("Unable to create output file.\n");
-        exit(EXIT_FAILURE);
+        fprintf(stderr, "Error creating the file: %s\n", strerror(errno));
+        return EXIT_FAILURE;
     }
 
     if (!input) {
-        printf("Unable to find input file.\n");
-        exit(EXIT_FAILURE);
+        fprintf(stderr, "Error opening the file: %s\n", strerror(errno));
+        return EXIT_FAILURE;
     }
 
     my_str_t word;
 
     if (my_str_create(&word, 100)){
-        printf("Unable to create string.");
-        exit(EXIT_FAILURE);
+        errno = 12;
+        fprintf(stderr, "Unable to create string: %s\n", strerror(errno));
+        return EXIT_FAILURE;
     }
 
     while (my_str_read_file_until_blankspace(&word, input) != -1){
@@ -41,7 +43,7 @@ int main(int argc, char * argv[]) {
                 i--;
             }
             if (isupper(my_str_getc(&word, i)))
-                my_str_putc(&word, i, (char) tolower(my_str_getc(&word, i)));
+                my_str_putc(&word, i, (char)tolower(my_str_getc(&word, i)));
         }
 
         write_data(output, my_str_get_cstr(&word));
@@ -53,6 +55,6 @@ int main(int argc, char * argv[]) {
     fclose(output);
 
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
