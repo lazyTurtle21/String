@@ -268,12 +268,12 @@ int my_str_append_cstr(my_str_t* str, const char* from){
 //! від'ємне значення, якщо перша менша, додатнє -- якщо друга.
 int my_str_cmp(my_str_t* str1, const char* str2){
     if (!str1)
-        return (size_t )-3u;
+        return NULL_POINTER_ERROR_INT;
 
     int counter = 0;
     for (int i = 0; i < str1->size_m; i ++){
-        if (!*(str2 + i))
-            return (str1->size_m - counter);
+        if (*(str2 + i) == '\0')
+            return str1->size_m - counter;
         if (*(str2 + i) == *(str1->data + i))
             counter ++;
     }
@@ -282,6 +282,7 @@ int my_str_cmp(my_str_t* str1, const char* str2){
 
     return counter - str2_len;
 }
+
 
 
 //! Скопіювати підстрічку, із beg включно, по end не включно ([beg, end)).
