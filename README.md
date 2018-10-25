@@ -10,7 +10,8 @@ Version of C-String, but without \0
 cd lib  # go to directory lib
 mkdir build
 cd build
-cmake
+cmake -G"Unix Makefiles" ..
+make
 ```
 
 ### .exe files
@@ -19,13 +20,14 @@ cmake
 cd examples  # go to directory examples
 mkdir build
 cd build
-cmake
+cmake -G"Unix Makefiles" ..
+make
 ```
 
 ## Usage
 AFTER Building:
 ```sh
-cd examples  # go to directory examples
+cd bin  # go to directory examples
 # * - is the name of the .exe file you want to run
 *_runner path_to_your_input_file/filename.txt path_to_your_output_file/filename.txt
 ```
