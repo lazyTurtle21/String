@@ -32,7 +32,7 @@ int main(int argc, char * argv[]) {
 
     my_str_t word;
 
-    if (my_str_create(&word, 100)){
+    if (my_str_create(&word, 128)){
         fprintf(stderr, "Unable to create string: %s\n", strerror(errno));
         return FAILURE;
     }
