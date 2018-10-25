@@ -30,7 +30,7 @@ int main() {
     my_str_print(&str_1);
     int s2 = my_str_from_cstr(&str_2, c_str, 5);
     printf("Function returned: %i \nFailed to create a string\n\n", s2);
-    my_str_free(&str_2);
+
 
 
     printf("Function to test: my_str_size\n");
@@ -84,7 +84,7 @@ int main() {
     printf("Copied string: ");
     my_str_print(&str_3);
     printf("Buffer size: %i\n\n", my_str_capacity(&str_3));
-    my_str_free(&str);
+
 
     printf("Function to test: my_str_cmp\n");
     char c_str1[] = "My String";
@@ -145,7 +145,7 @@ int main() {
     printf("String now: ");
     my_str_print(&str_1);
     int ins_s2 = my_str_insert(&str_1, &str_5, 4);
-    my_str_free(&str_5);
+
 
     printf("Inserting string at position 4\nFunction returned: %i\n", ins2);
     printf("String now: ");
@@ -172,7 +172,6 @@ int main() {
     my_str_t str_6;
     my_str_from_cstr(&str_6, "gggggggggggggg", 20);
     int a1 = my_str_append(&str_1, &str_6);
-    my_str_free(&str_6);
 
     printf("Buffer size is too small\nFunction returned: %i\n", a1);
     printf("String now: ");
@@ -181,7 +180,6 @@ int main() {
     my_str_t str_7;
     my_str_from_cstr(&str_7, s_to_app, 10);
     int a2 = my_str_append(&str_1, &str_7);
-    my_str_free(&str_7);
     printf("Buffer size is ok\nFunction returned: %i\n", a2);
     printf("String now: ");
     my_str_print(&str_1);
@@ -270,7 +268,6 @@ int main() {
     printf("Trying to pushback 'M' after clear()\nFunction returned: %i\n", p);
     printf("String now: ");
     my_str_print(&str_3);
-    my_str_free(&str_3);
 
     printf("\n\n");
 
@@ -305,5 +302,5 @@ int main() {
         printf("\n\n");
         fclose(file);
     }
-    my_str_free(&f_str);
+    return 0;
 }
