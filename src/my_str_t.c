@@ -1,7 +1,6 @@
-#include "my_str_t.h"
+#include "../include/my_str_t.h"
 #define NULL_POINTER_ERROR_INT -3;
 #define NULL_POINTER_ERROR_SIZE_T (size_t)-3u;
-#define MEMORY_ALLOCATION_ERROR_SIZE_T -2;
 #define MEMORY_ALLOCATION_ERROR_INT (size_t)-2u;
 #define FAIL_INT -1;
 #define FAIL_SIZE_T (size_t)-1u;
@@ -56,7 +55,7 @@ int my_str_from_cstr(my_str_t* str, const char* cstr, size_t buf_size) {
     if (!str->data)
         return MEMORY_ALLOCATION_ERROR_INT;
 
-    for (int i = 0; i < str->size_m; i++)
+    for (size_t i = 0; i < str->size_m; i++)
         *(str->data + i) = *(cstr + i);
     return SUCCESS_INT;
 }
@@ -155,7 +154,7 @@ int my_str_copy(const my_str_t* from,  my_str_t* to, int reserve){
         to->capacity_m = from->size_m;
 
     to->size_m = from->size_m;
-    for (int i = 0; i < from->size_m; i++)
+    for (size_t i = 0; i < from->size_m; i++)
         *(to->data + i) = *(from->data + i);
 
     return SUCCESS_INT;
@@ -219,8 +218,8 @@ int my_str_insert_cstr(my_str_t* str, const char* from, size_t pos) {
     if ((str->size_m + cstr_len(from)) > str->capacity_m ||(pos >= str->size_m))
         return FAIL_INT;
 
-    int size = str->size_m;
-    int insert_size = cstr_len(from);
+    size_t size = str->size_m;
+    size_t insert_size = cstr_len(from);
 
     while (size-- != pos)
         *(str->data + size + insert_size) = *(str->data + size);
@@ -241,7 +240,7 @@ int my_str_append(my_str_t* str, const my_str_t* from){
     if(str->capacity_m - str->size_m < from->size_m)
         return FAIL_INT;
 
-    for (int i = 0; i < from->size_m; i++)
+    for (size_t i = 0; i < from->size_m; i++)
         my_str_pushback(str, *(from->data + i));
 
     return SUCCESS_INT;
@@ -263,20 +262,21 @@ int my_str_append_cstr(my_str_t* str, const char* from){
 }
 
 //! Порівняти стрічки, повернути 0, якщо рівні (за вмістом!)
-//! -1, якщо перша менша, 1 -- якщо друга.
-size_t my_str_cmp(my_str_t* str1, const char* str2){
+//! від'ємне значення, якщо перша менша, додатнє -- якщо друга.
+int my_str_cmp(my_str_t* str1, const char* str2){
     if (!str1)
-        return (size_t )-3u;
+        return NULL_POINTER_ERROR_SIZE_T;
 
-    size_t counter = 0;
-    for (int i = 0; i < str1->size_m; i ++){
-        if (!*(str2 + i))
-            return (str1->size_m - counter);
+    int counter = 0;
+    for (size_t i = 0; i < str1->size_m; i ++){
         if (*(str2 + i) == *(str1->data + i))
             counter ++;
+        if (*(str2 + i + 1) == '\0')
+            return str1->size_m - counter;
     }
-    size_t str2_len = str1->size_m;
-    while(str2 + str2_len++ ){}
+
+    int str2_len = str1->size_m;
+    while(*(str2 + ++str2_len)){}
 
     return counter - str2_len;
 }
@@ -285,10 +285,26 @@ size_t my_str_cmp(my_str_t* str1, const char* str2){
 //! Якщо end виходить за межі str -- скопіювати скільки вдасться, не вважати
 //! це помилкою. Якщо ж в ціловій стрічці замало місця, або beg більший
 //! за розмір str -- це помилка. Повернути відповідний код завершення.
-int my_str_substr(const my_str_t* str, char* to, size_t beg, size_t end){
-    return 0;
-}
+int my_str_substr(const my_str_t* str, my_str_t* to, size_t beg, size_t end){
+    if (!str || !to)
+        return NULL_POINTER_ERROR_INT;
 
+    size_t str_size = str->size_m;
+    size_t stop;
+    if(end > str_size)
+        stop = str_size;
+    else
+        stop = end;
+
+    if((to->capacity_m < (stop - beg)) || (beg >= str_size))
+        return FAIL_INT;
+
+    my_str_clear(to);
+    for (size_t i = beg; i < stop; i++)
+        my_str_pushback(to, (char)my_str_getc(str, i));
+
+    return SUCCESS_INT;
+}
 
 //! Повернути вказівник на С-стрічку, еквівалентну str.
 //! Вважатимемо, що змінювати цю С-стрічку заборонено.
@@ -296,7 +312,7 @@ int my_str_substr(const my_str_t* str, char* to, size_t beg, size_t end){
 //! просто додати нульовий символ в кінці та повернути вказівник data.
 const char* my_str_get_cstr(my_str_t* str) {
     if (!str || !(str->data))
-        return -3;
+        return NULL;
     *(str->data + str->size_m) = '\0';
     return str->data;
 }
@@ -420,11 +436,10 @@ int my_str_remove_c(my_str_t* str, size_t pos) {
 }
 
 //! Prints a string
-int print_str(const my_str_t* str){
+int my_str_print(const my_str_t* str){
     if (!str)
         return NULL_POINTER_ERROR_INT;
     for (int i = 0; i < str->size_m; i++)
         printf("%c", *(str->data + i));
     printf("\n");
 }
-
