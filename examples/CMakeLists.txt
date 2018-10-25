@@ -1,0 +1,15 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
+PROJECT(static_string_lib)
+
+set(CMAKE_C_STANDARD 99)
+
+SET(LIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../lib)
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../bin)
+
+ADD_EXECUTABLE(first_task first_task.c)
+TARGET_LINK_LIBRARIES(first_task ${LIB_PATH}/libmy_str_t.dll)
+TARGET_INCLUDE_DIRECTORIES(first_task PUBLIC ${LIB_PATH}/include)
+
+ADD_EXECUTABLE(second_task second_task.c)
+TARGET_LINK_LIBRARIES(second_task ${LIB_PATH}/libmy_str_t.dll)
+TARGET_INCLUDE_DIRECTORIES(second_task PUBLIC ${LIB_PATH}/include)

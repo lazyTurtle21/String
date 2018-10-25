@@ -1,0 +1,9 @@
+cmake_minimum_required(VERSION 3.0)
+project(static_string_lib)
+
+set(CMAKE_C_STANDARD 99)
+
+set(SOURCE_FILES src/my_str_t.c include/my_str_t.h)
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+ADD_LIBRARY(my_str_t SHARED ${SOURCE_FILES})
