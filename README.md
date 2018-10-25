@@ -35,6 +35,10 @@ For instance, if you want to run second_task.exe:
 second_task_runner path_to_your_input_file/filename.txt path_to_your_output_file/filename.txt
 ```
 
+## Additional info
+
+If an error occured while any function execution, it will return -1 and change errno to the corresponding error code.
+
 ## Creators
 
 lazyTurtle21 – [Sophia Kholod](https://facebook.com/sofikholod) – kholod@ucu.edu.ua
