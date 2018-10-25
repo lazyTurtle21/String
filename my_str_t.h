@@ -1,14 +1,17 @@
 #ifndef LAB2_MY_STR_T_H
 #define LAB2_MY_STR_T_H
+
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
+
 typedef struct
 {
     size_t capacity_m;
     size_t size_m;
     char*  data;
 } my_str_t;
+
 int my_str_create(my_str_t* str, size_t buf_size);//
 int my_str_from_cstr(my_str_t* str, const char* cstr, size_t buf_size);//
 int print_str(const my_str_t* str); //
@@ -27,7 +30,7 @@ int my_str_insert(my_str_t* str, const my_str_t* from, size_t pos);//
 int my_str_insert_cstr(my_str_t* str, const char* from, size_t pos);//
 int my_str_append(my_str_t* str, const my_str_t* from);//
 int my_str_append_cstr(my_str_t* str, const char* from);//
-size_t my_str_cmp(my_str_t* str, const char* from);
+int my_str_cmp(my_str_t* str, const char* from);
 int my_str_substr(const my_str_t* str, char* to, size_t beg, size_t end);
 const char* my_str_get_cstr(my_str_t* str);
 size_t my_str_find(const my_str_t* str, const my_str_t* tofind, size_t from);//

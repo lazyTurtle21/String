@@ -1,48 +1,60 @@
-#include "second_task.h"
+#include <string.h>
+#include <errno.h>
+#include "my_str_t.h"
 
-void store_data(const char *filepath, const char *data) {
-    FILE *fp = fopen(filepath, "w");
 
-    if (fp == NULL) {
-        printf("Unable to create file.\n");
-        exit(EXIT_FAILURE);
-    }
-    printf("%s", "> output file was successfully created...");
-    fputs(data, fp);
-    printf("%s", "> data was successfully stored to output file...");
-    fclose(fp);
+void write_data(FILE* file, const char *data) {
+    fputs(data, file);
 }
 
+
 int main(int argc, char * argv[]) {
-    if(argc != 3)
-    {
-        printf("%s", "You should pass 2 arguments: name of the input file, name of the output file...");
-        return -1;
+    if(argc != 3) {
+        fprintf(stderr, "Wrong number of arguments: %s\n", strerror(EINVAL));
+        return EINVAL;
     }
 
-    my_str_t str;
-    my_str_create(&str, 100);
+    FILE *input = fopen(argv[1], "r");
+    FILE *output = fopen(argv[2], "w");
 
-    FILE *file;
-    file = fopen(argv[1], "r");
+    if (!output) {
+        fprintf(stderr, "Error creating the file: %s\n", strerror(errno));
+        return errno;
+    }
 
-    if (file) {
-        while (my_str_read_file_until_blankspace(&str, file) != -1)
-            my_str_pushback(&str, ' ');
+    if (!input) {
+        fprintf(stderr, "Error opening the file: %s\n", strerror(errno));
+        return errno;
+    }
 
-        for (size_t i = 0; i < str.size_m; i++) {
-            if (!isalpha(my_str_getc(&str, i)) && !isblank(my_str_getc(&str, i)))
-                my_str_remove_c(&str, i);
-            if(isupper(my_str_getc(&str, i)))
-                my_str_putc(&str, i, (char)tolower(my_str_getc(&str, i)));
+    my_str_t word;
+
+    if (my_str_create(&word, 100)){
+        fprintf(stderr, "Unable to create string: %s\n", strerror(ENOMEM));
+        return ENOMEM;
+    }
+
+    while (my_str_read_file_until_blankspace(&word, input) != -1){
+        my_str_pushback(&word, ' ');
+
+        for (size_t i = 0; i < word.size_m; i++) {
+            if (ispunct(my_str_getc(&word, i))) {
+                my_str_remove_c(&word, i);
+                i--;
+            }
+            if (isupper(my_str_getc(&word, i)))
+                my_str_putc(&word, i, (char)tolower(my_str_getc(&word, i)));
         }
-        fclose(file);
-        store_data(argv[2], my_str_get_cstr(&str));
-        return 0;
+
+        write_data(output, my_str_get_cstr(&word));
+        my_str_clear(&word);
+
     }
-    else{
-        printf("%s", "File wasn't found...");
-        return -1;
-    }
+
+    fclose(input);
+    fclose(output);
+
+
+    return EXIT_SUCCESS;
 }
 
