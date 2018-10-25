@@ -1,4 +1,4 @@
-#include "../lib/include/my_str_t.h"
+#include "my_str_t.h"
 
 #define FAILURE (-1)
 
@@ -54,7 +54,8 @@ int main(int argc, char * argv[]) {
 
     fclose(input);
     fclose(output);
-
+    my_str_free(&word);
 
     return EXIT_SUCCESS;
+
 }

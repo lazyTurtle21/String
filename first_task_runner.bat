@@ -1,3 +1,3 @@
 set PATH=%PATH%;lib
-start /WAIT /B bin/first_task.exe
+start /WAIT /B examples/bin/first_task.exe
 pause
