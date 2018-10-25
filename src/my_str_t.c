@@ -2,12 +2,13 @@
 #include <errno.h>
 #include "my_str_t.h"
 
+#define FAILURE (-1)
 
 //! Рахує кількість символів у с-стрічці без останнього ('\0')
 static size_t cstr_len(const char* str) {
     if (!str) {
-        fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
-        return (size_t)EFAULT;
+        errno = EFAULT;
+        return (size_t)FAILURE;
     }
     size_t length = 0;
     while (*(str + ++length)) {}
@@ -18,15 +19,15 @@ static size_t cstr_len(const char* str) {
 //! Варто виділяти buf_size+1 для спрощення роботи my_str_get_cstr().
 int my_str_create(my_str_t* str, size_t buf_size) {
     if (!str) {
-        fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
-        return EXIT_FAILURE;
+        errno = EFAULT;
+        return FAILURE;
     }
 
     str->data = malloc(buf_size + 1);
 
     if (!str->data) {
-        fprintf(stderr, "Memory allocation error: %s\n", strerror(ENOMEM));
-        return EXIT_FAILURE;
+        errno = ENOMEM;
+        return FAILURE;
     }
     str->size_m = 0;
     str->capacity_m = buf_size;
@@ -42,12 +43,12 @@ int my_str_from_cstr(my_str_t* str, const char* cstr, size_t buf_size) {
     size_t str_length = cstr_len(cstr);
 
     if (!str) {
-        return fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
-        return EXIT_FAILURE;
+        errno = EFAULT;
+        return FAILURE;
     }
     if (buf_size < str_length){
-        fprintf(stderr, "Argument is out of str boundary: %s\n", strerror(EINVAL));
-        return EINVAL;
+        errno = EINVAL;
+        return FAILURE;
     }
 
     str->size_m = str_length;
@@ -58,8 +59,8 @@ int my_str_from_cstr(my_str_t* str, const char* cstr, size_t buf_size) {
     str->data = malloc(buf_size);
 
     if (!str->data) {
-        fprintf(stderr, "Memory allocation error: %s\n", strerror(ENOMEM));
-        return EXIT_FAILURE;
+        errno = ENOMEM;
+        return FAILURE;
     }
 
     for (size_t i = 0; i < str->size_m; i++)
@@ -80,8 +81,8 @@ void my_str_free(my_str_t* str){
 //! Повертає розмір стрічки:
 size_t my_str_size(const my_str_t* str) {
     if (!str) {
-        fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
-        return (size_t)EXIT_FAILURE;
+        errno = EFAULT;
+        return (size_t)FAILURE;
     }
     return str->size_m;
 }
@@ -89,8 +90,8 @@ size_t my_str_size(const my_str_t* str) {
 //! Повертає розмір буфера:
 size_t my_str_capacity(const my_str_t* str) {
     if (!str) {
-        fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
-        return (size_t) EXIT_FAILURE;
+        errno = EFAULT;
+        return (size_t)FAILURE;
     }
     return str->capacity_m;
 }
@@ -102,16 +103,16 @@ int my_str_empty(const my_str_t* str){
     return 0;
 }
 
-//! Повертає символ у вказаній позиції, або -1, якщо вихід за межі стрічки
+//! Повертає символ у вказаній позиції, або FAILURE, якщо вихід за межі стрічки
 int my_str_getc(const my_str_t* str, size_t index) {
     if (!str) {
-        fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
-        return EXIT_FAILURE;
+        errno = EFAULT;
+        return (size_t)FAILURE;
     }
 
     if (index < 0 || index >= str->size_m){
-        fprintf(stderr, "Argument is out of str boundary: %s\n", strerror(EINVAL));
-        return EINVAL;
+        errno = EINVAL;
+        return (size_t)FAILURE;
     }
 
     return *(str->data + index);
@@ -120,12 +121,12 @@ int my_str_getc(const my_str_t* str, size_t index) {
 //! Записує символ у вказану позиції (заміняючи той, що там був),
 int my_str_putc(my_str_t* str, size_t index, char c) {
     if (!str) {
-        fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
-        return EXIT_FAILURE;
+        errno = EFAULT;
+        return FAILURE;
     }
     if (index < 0 || index >= str->size_m){
-        fprintf(stderr, "Argument is out of str boundary: %s\n", strerror(EINVAL));
-        return EINVAL;
+        errno = EINVAL;
+        return FAILURE;
     }
     *(str->data + index) = c;
     return EXIT_SUCCESS;
@@ -136,12 +137,12 @@ int my_str_putc(my_str_t* str, size_t index, char c) {
 //! Повертає 0, якщо успішно, -1, якщо буфер закінчився.
 int my_str_pushback(my_str_t* str, char c){
     if (!str) {
-        fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
-        return EXIT_FAILURE;;
+        errno = EFAULT;
+        return FAILURE;
     }
     if (str->capacity_m <= str->size_m){
-        printf("Str is full: cannot add an element");
-        return EXIT_FAILURE;
+        errno = ENOMEM;
+        return FAILURE;
     }
     *(str->data + str->size_m++) = c;
     return EXIT_SUCCESS;
@@ -151,15 +152,15 @@ int my_str_pushback(my_str_t* str, char c){
 //! Повертає його, якщо успішно, -1, якщо буфер закінчився.
 int my_str_popback(my_str_t* str){
     if (!str) {
-        fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
-        return EXIT_FAILURE;
+        errno = EFAULT;
+        return FAILURE;
     }
     if(0 < str->size_m <= str->capacity_m){
         char c_to_pop = *(str->data + str->size_m - 1);
         *(str->data + --str->size_m) = 0;
         return c_to_pop;
     }
-    return EXIT_FAILURE;
+    return FAILURE;
 }
 
 //! Копіює стрічку. Якщо reserve == true,
@@ -168,13 +169,13 @@ int my_str_popback(my_str_t* str){
 //! Старий вміст стрічки перед тим звільняє, за потреби.
 int my_str_copy(const my_str_t* from,  my_str_t* to, int reserve){
     if (!from || !to) {
-        fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
-        return EXIT_FAILURE;
+        errno = EFAULT;
+        return FAILURE;
     }
 
     if (to->capacity_m < from->size_m){
-        fprintf(stderr, "Argument is out of str boundary: %s\n", strerror(EINVAL));
-        return EINVAL;
+        errno = EINVAL;
+        return FAILURE;
     }
 
     if (reserve == 1)
@@ -199,13 +200,13 @@ void my_str_clear(my_str_t* str){
 //! Вставити символ у стрічку в заданій позиції, змістивши решту символів праворуч.
 int my_str_insert_c(my_str_t* str, char c, size_t pos) {
     if (!str){
-        fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
-        return EXIT_FAILURE;
+        errno = EFAULT;
+        return FAILURE;
     }
 
     if (str->size_m >= str->capacity_m || pos >= str->size_m){
-        fprintf(stderr, "Argument is out of str boundary: %s\n", strerror(EINVAL));
-        return EINVAL;
+        errno = EINVAL;
+        return FAILURE;
     }
 
     size_t size = str->size_m;
@@ -221,12 +222,12 @@ int my_str_insert_c(my_str_t* str, char c, size_t pos) {
 //! Вставити стрічку в заданій позиції, змістивши решту символів праворуч.
 int my_str_insert(my_str_t* str, const my_str_t* from, size_t pos){
     if (!str || !from) {
-        fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
-        return EXIT_FAILURE;
+        errno = EFAULT;
+        return FAILURE;
     }
     if ((str->size_m + from->size_m > str->capacity_m) ||(pos >= str->size_m)){
-        fprintf(stderr, "Argument is out of str boundary: %s\n", strerror(EINVAL));
-        return EINVAL;
+        errno = EINVAL;
+        return FAILURE;
     }
 
     size_t size = str->size_m;
@@ -247,16 +248,16 @@ int my_str_insert(my_str_t* str, const my_str_t* from, size_t pos){
 }
 
 //! Вставити C-стрічку в заданій позиції, змістивши решту символів праворуч.
-//! Якщо це неможливо, повертає -1, інакше 0.
+//! Якщо це неможливо, повертає FAILURE, інакше 0.
 int my_str_insert_cstr(my_str_t* str, const char* from, size_t pos) {
     if (!str || !from){
-        fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
-        return EXIT_FAILURE;
+        errno = EFAULT;
+        return FAILURE;
     }
 
     if ((str->size_m + cstr_len(from)) > str->capacity_m || pos >= str->size_m){
-        fprintf(stderr, "Argument is out of str boundary: %s\n", strerror(EINVAL));
-        return EINVAL;
+        errno = EINVAL;
+        return FAILURE;
     }
 
     size_t size = str->size_m;
@@ -276,13 +277,13 @@ int my_str_insert_cstr(my_str_t* str, const char* from, size_t pos) {
 //! Додати стрічку в кінець.
 int my_str_append(my_str_t* str, const my_str_t* from){
     if (!str || !from) {
-        fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
-        return EXIT_FAILURE;
+        errno = EFAULT;
+        return FAILURE;
     }
 
     if (str->capacity_m - str->size_m < from->size_m) {
-        fprintf(stderr, "Argument is out of str boundary: %s\n", strerror(EINVAL));
-        return EINVAL;
+        errno = EINVAL;
+        return FAILURE;
     }
 
     for (size_t i = 0; i < from->size_m; i++)
@@ -294,15 +295,15 @@ int my_str_append(my_str_t* str, const my_str_t* from){
 //! Додати С-стрічку в кінець.
 int my_str_append_cstr(my_str_t* str, const char* from){
     if (!str || !from) {
-        fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
-        return EXIT_FAILURE;
+        errno = EFAULT;
+        return FAILURE;
     }
 
     int len = cstr_len(from);
 
     if (str->capacity_m - str->size_m < len) {
-        fprintf(stderr, "Argument is out of str boundary: %s\n", strerror(EINVAL));
-        return EINVAL;
+        errno = EINVAL;
+        return FAILURE;
     }
 
     for (int i = 0; i < len; i++)
@@ -316,8 +317,8 @@ int my_str_append_cstr(my_str_t* str, const char* from){
 //! від'ємне значення, якщо перша менша, додатнє -- якщо друга.
 int my_str_cmp(my_str_t* str1, const char* str2){
     if (!str1){
-        fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
-        return EXIT_FAILURE;
+        errno = EFAULT;
+        return FAILURE;
     }
 
     int counter = 0;
@@ -338,8 +339,10 @@ int my_str_cmp(my_str_t* str1, const char* str2){
 //! це помилкою. Якщо ж в ціловій стрічці замало місця, або beg більший
 //! за розмір str -- це помилка. Повернути відповідний код завершення.
 int my_str_substr(const my_str_t* str, my_str_t* to, size_t beg, size_t end){
-    if (!str || !to)
-        return NULL_POINTER_ERROR_INT;
+    if (!str || !to){
+        errno = EFAULT;
+        return FAILURE;
+    }
 
     size_t str_size = str->size_m;
     size_t stop;
@@ -348,14 +351,16 @@ int my_str_substr(const my_str_t* str, my_str_t* to, size_t beg, size_t end){
     else
         stop = end;
 
-    if((to->capacity_m < (stop - beg)) || (beg >= str_size))
-        return FAIL_INT;
+    if((to->capacity_m < (stop - beg)) || (beg >= str_size)){
+        errno = EINVAL;
+        return FAILURE;
+    }
 
     my_str_clear(to);
     for (size_t i = beg; i < stop; i++)
         my_str_pushback(to, (char)my_str_getc(str, i));
 
-    return SUCCESS_INT;
+    return EXIT_SUCCESS;
 }
 
 //! Повернути вказівник на С-стрічку, еквівалентну str.
@@ -374,13 +379,13 @@ const char* my_str_get_cstr(my_str_t* str) {
 //! Якщо більше за розмір -- вважати, що не знайдено.
 size_t my_str_find(const my_str_t* str, const my_str_t* tofind, size_t from){
     if (!str || !tofind) {
-        fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
-        return (size_t)EXIT_FAILURE;
+        errno = EFAULT;
+        return (size_t)FAILURE;
     }
 
     if (from >= str->size_m) {
-        fprintf(stderr, "Argument is out of str boundary: %s\n", strerror(EINVAL));
-        return EINVAL;
+        errno = EINVAL;
+        return (size_t)FAILURE;
     }
 
     size_t size = str->size_m;
@@ -394,28 +399,28 @@ size_t my_str_find(const my_str_t* str, const my_str_t* tofind, size_t from){
         if (j == subsize)
             return from;
     }
-    return (size_t)EXIT_FAILURE;
+    return (size_t)FAILURE;
 }
 
 //! Знайти перший символ в стрічці, повернути його номер
-//! або -1u, якщо не знайдено. from -- місце, з якого починати шукати.
+//! або FAILUREu, якщо не знайдено. from -- місце, з якого починати шукати.
 //! Якщо більше за розмір -- вважати, що не знайдено.
 size_t my_str_find_c(const my_str_t* str, char tofind, size_t from){
     if (!str) {
-        fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
-        return (size_t)EXIT_FAILURE;
+        errno = EFAULT;
+        return (size_t)FAILURE;
     }
 
     if (from >= str->size_m) {
-        fprintf(stderr, "Incorrect argument from: %s\n", strerror(EINVAL));
-        return EINVAL;
-        }
+        errno = EINVAL;
+        return (size_t)FAILURE;
+    }
 
     for (from; from < str->size_m; from++){
         if (*(str->data + from) == tofind)
             return from;
     }
-    return (size_t)EXIT_FAILURE;
+    return (size_t)FAILURE;
 }
 
 //! Знайти символ в стрічці, для якого передана
@@ -423,15 +428,15 @@ size_t my_str_find_c(const my_str_t* str, char tofind, size_t from){
 //! або -1u, якщо не знайдено:
 size_t my_str_find_if(const my_str_t* str, int (*predicate)(char)){
     if (!str) {
-        fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
-        return (size_t) EXIT_FAILURE;
+        errno = EFAULT;
+        return (size_t)FAILURE;
     }
 
     for (size_t i = 0; i < str->size_m; i++){
         if (predicate(*(str->data + i)) == 1)
             return i;
     }
-    return (size_t)EXIT_FAILURE;
+    return (size_t)FAILURE;
 }
 
 //! Прочитати стрічку із файлу. Повернути, 0, якщо успішно, -1,
@@ -441,13 +446,13 @@ size_t my_str_find_if(const my_str_t* str, int (*predicate)(char)){
 //! the name of functionn was changed
 int my_str_read_file_until_end(my_str_t* str, FILE* file) {
     if (!str || !file) {
-        fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
-        return EXIT_FAILURE;
+        errno = EFAULT;
+        return FAILURE;
     }
 
     if (!fgets(str->data, str->capacity_m, file)) {
-        fprintf(stderr, "A read error occured: %s\n", strerror(errno));
-        return errno;
+        errno = EINVAL;
+        return FAILURE;
     }
 
     str->size_m = cstr_len(str->data);
@@ -457,16 +462,16 @@ int my_str_read_file_until_end(my_str_t* str, FILE* file) {
 //! this function was added to the interface
 int my_str_read_file_until_blankspace(my_str_t* str, FILE* file) {
     if (!str || !file) {
-        fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
-        return EXIT_FAILURE;
+        errno = EFAULT;
+        return FAILURE;
     }
 
     char format[32];
     snprintf(format, sizeof(format), "%%%ds", str->capacity_m - 1);
     int res = fscanf(file, format, str->data + str->size_m);
 
-    if (res == -1)  // The end of file, not an error
-        return EXIT_FAILURE;
+    if (res == FAILURE)  // The end of file, not an error
+        return FAILURE;
 
     str->size_m = cstr_len(str->data);
 
@@ -476,12 +481,12 @@ int my_str_read_file_until_blankspace(my_str_t* str, FILE* file) {
 //! Аналог my_str_read_file, із stdin
 int my_str_read(my_str_t* str){
     if (!str){
-        fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
-        return EXIT_FAILURE;
+        errno = EFAULT;
+        return FAILURE;
     }
     if (!fgets(str->data, str->capacity_m + 1, stdin)) {
-        fprintf(stderr, "Did not manage to get the input: %s\n", strerror(EIO));
-        return EIO;
+        errno = EIO;
+        return FAILURE;
     }
     str->size_m = cstr_len(str->data);
     return EXIT_SUCCESS;
@@ -493,12 +498,12 @@ int my_str_read(my_str_t* str){
 //! Removes character in position <pos> from string
 int my_str_remove_c(my_str_t* str, size_t pos) {
     if (!str) {
-        fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
-        return EFAULT;
+        errno = EFAULT;
+        return FAILURE;
     }
     if (pos > str->size_m) {
-        fprintf(stderr, "Incorrect argument pos: %s\n", strerror(EINVAL));
-        return EINVAL;
+        errno = EINVAL;
+        return FAILURE;
     }
     while (pos < str->size_m)
     {
@@ -515,11 +520,10 @@ int my_str_remove_c(my_str_t* str, size_t pos) {
 //! Prints a string
 int my_str_print(const my_str_t* str){
     if (!str){
-        fprintf(stderr, "Null pointer error: %s\n", strerror(EFAULT));
-        return EFAULT;
+        errno = EFAULT;
+        return FAILURE;
     }
     for (int i = 0; i < str->size_m; i++)
         printf("%c", *(str->data + i));
     printf("\n");
 }
-
