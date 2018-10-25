@@ -26,8 +26,8 @@ make
 
 ## Usage
 AFTER Building:
-.exe files are in directory <b>bin
- o run a file - run a corresponding .bat file:
+.exe files are in directory <b>bin</b>
+To run a file - run a corresponding .bat file:
 ```sh
 # * - is the name of the .exe file you want to run
 *_runner path_to_your_input_file/filename.txt path_to_your_output_file/filename.txt
